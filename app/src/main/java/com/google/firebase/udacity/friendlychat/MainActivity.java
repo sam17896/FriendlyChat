@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FirebaseAuth.AuthStateListener authStateListener;
     private FirebaseStorage firebaseStorage;
     private StorageReference storageRef;
+    private List<FriendlyMessage> friendlyMessages;
+    private FriendlyMessage cfriendlyMessage;
 
     private final static int RC_SIGN_IN = 442;
     private final static int RC_PHOTO_PICKER = 33;
@@ -102,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mSendButton = (Button) findViewById(R.id.sendButton);
 
         // Initialize message ListView and its adapter
-        final List<FriendlyMessage> friendlyMessages = new ArrayList<>();
+        friendlyMessages = new ArrayList<>();
         mMessageAdapter = new MessageAdapter(this, R.layout.item_message, friendlyMessages);
         mMessageListView.setAdapter(mMessageAdapter);
 
@@ -251,13 +253,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     //
 
-
                     FriendlyMessage friendlyMessage = dataSnapshot.getValue(FriendlyMessage.class);
-                    mMessageAdapter.add(friendlyMessage);
+                    if(friendlyMessage.getText()!=null) {
+                        if (friendlyMessage.getText().contains("lol") || friendlyMessage.getText().contains("cat") ||friendlyMessage.getText().contains("feroz")) {
+                            // do nothing
+                        } else {
+                            mMessageAdapter.add(friendlyMessage);
+                        }
+                    } else {
+                        mMessageAdapter.add(friendlyMessage);
+                    }
                 }
 
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                    FriendlyMessage friendlyMessage = dataSnapshot.getValue(FriendlyMessage.class);
+                    mMessageAdapter.add(friendlyMessage);
 
                 }
 
@@ -298,6 +310,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.sendButton:
 
                 FriendlyMessage friendlyMessage = new FriendlyMessage(mMessageEditText.getText().toString().trim(), mUsername, null);
+                cfriendlyMessage = friendlyMessage;
                 mMessageDatabaseReference.push().setValue(friendlyMessage);
                 // Clear input box
                 mMessageEditText.setText("");
