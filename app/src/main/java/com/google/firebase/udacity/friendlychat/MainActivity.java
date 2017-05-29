@@ -296,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int id  = v.getId();
 
         switch (id){
-            case R.id.messenger_send_button:
+            case R.id.sendButton:
 
                 FriendlyMessage friendlyMessage = new FriendlyMessage(mMessageEditText.getText().toString().trim(), mUsername, null);
                 mMessageDatabaseReference.push().setValue(friendlyMessage);
