@@ -31,6 +31,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
@@ -46,7 +47,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
 
@@ -128,18 +129,7 @@ public class MainActivity extends AppCompatActivity {
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
         // Send button sends a message and clears the EditText
-        mSendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO: Send messages on click
-
-                FriendlyMessage friendlyMessage = new FriendlyMessage(mMessageEditText.getText().toString().trim(), mUsername, null);
-
-                mMessageDatabaseReference.push().setValue(friendlyMessage);
-                // Clear input box
-                mMessageEditText.setText("");
-            }
-        });
+        mSendButton.setOnClickListener(this);
 
 
         authStateListener = new FirebaseAuth.AuthStateListener() {
@@ -217,9 +207,11 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==RC_SIGN_IN){
             if(resultCode == RESULT_OK){
-
+                Toast.makeText(this, "You signed in", Toast.LENGTH_SHORT).show();
             } else if(resultCode == RESULT_CANCELED) {
+                Toast.makeText(this, "You signed out", Toast.LENGTH_SHORT).show();
                 finish();
+
             }
         }
 
@@ -258,9 +250,8 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             };
+            mMessageDatabaseReference.addChildEventListener(childEventListener);
         }
-        mMessageDatabaseReference.addChildEventListener(childEventListener);
-
     }
 
     public void cleanUp(){
@@ -272,4 +263,25 @@ public class MainActivity extends AppCompatActivity {
             childEventListener = null;
         }
     }
+
+    @Override
+    public void onClick(View v) {
+        int id  = v.getId();
+
+        switch (id){
+            case R.id.messenger_send_button:
+
+                FriendlyMessage friendlyMessage = new FriendlyMessage(mMessageEditText.getText().toString().trim(), mUsername, null);
+                mMessageDatabaseReference.push().setValue(friendlyMessage);
+                // Clear input box
+                mMessageEditText.setText("");
+
+                break;
+
+            case R.id.photoPickerButton:
+
+                break;
+        }
+    }
+
 }
